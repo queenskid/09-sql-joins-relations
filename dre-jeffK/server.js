@@ -6,8 +6,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-// DONE: Don't forget to set your own conString.
-const conString = 'postgres://localhost:5432';
+// TODO: Don't forget to set your own conString.
+const conString = '';
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', error => {
@@ -18,18 +18,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('./public'));
 
-// REVIEWED: These are routes for requesting HTML resources.
+// REVIEW: These are routes for requesting HTML resources.
 app.get('/new', (request, response) => {
   response.sendFile('new.html', {root: './public'});
 });
 
-// REVIEWED: These are routes for making API calls to enact CRUD operations on our database.
+// REVIEW: These are routes for making API calls to enact CRUD operations on our database.
 app.get('/articles', (request, response) => {
-  // REVIEWED: This query will join the data together from our tables and send it back to the client.
-  // DONE: Write a SQL query which joins all data from articles and authors tables on the author_id value of each.
-  client.query(`SELECT * FROM articles
-    INNER JOIN authors
-    ON authors.author_id=articles.author_id;`)
+  // REVIEW: This query will join the data together from our tables and send it back to the client.
+  // TODO: Write a SQL query which joins all data from articles and authors tables on the author_id value of each.
+  client.query(``)
     .then(result => {
       response.send(result.rows);
     })
@@ -39,45 +37,39 @@ app.get('/articles', (request, response) => {
 });
 
 app.post('/articles', (request, response) => {
-  // DONE: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING.
-  // DONE: In the provided array, add the author and "authorUrl" as data for the SQL query.
+  // TODO: Write a SQL query to insert a new author, ON CONFLICT DO NOTHING.
+  // TODO: In the provided array, add the author and "authorUrl" as data for the SQL query.
   client.query(
-    'INSERT INTO authors(author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING;',
-    [request.body.author,
-      request.body.authorUrl],
+    '',
+    [],
     function(err) {
       if (err) console.error(err);
-      // REVIEWED: This is our second query, to be executed when this first query is complete.
+      // REVIEW: This is our second query, to be executed when this first query is complete.
       queryTwo();
     }
   )
 
   function queryTwo() {
-    // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article.
-    // DONE: In the provided array, add the author name as data for the SQL query.
+    // TODO: Write a SQL query to retrieve the author_id from the authors table for the new article.
+    // TODO: In the provided array, add the author name as data for the SQL query.
     client.query(
-      `SELECT author_id FROM authors
-      WHERE author=$1;`,
-      [request.body.author],
+      ``,
+      [],
       function(err, result) {
         if (err) console.error(err);
 
-        // REVIEWED: This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query.
+        // REVIEW: This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query.
         queryThree(result.rows[0].author_id);
       }
     )
   }
 
   function queryThree(author_id) {
-    // DONE: Write a SQL query to insert the new article using the author_id from our previous query.
-    // DONE: In the provided array, add the data from our new article, including the author_id, as data for the SQL query.
+    // TODO: Write a SQL query to insert the new article using the author_id from our previous query.
+    // TODO: In the provided array, add the data from our new article, including the author_id, as data for the SQL query.
     client.query(
-      `INSERT INTO articles(body, category, "publishedOn", title, author_id) VALUES ($1, $2, $3, $4, $5);`,
-      [request.body.body,
-        request.body.category,
-        request.body.publishedOn,
-        request.body.title,
-        author_id],
+      ``,
+      [],
       function(err) {
         if (err) console.error(err);
         response.send('insert complete');
@@ -87,27 +79,18 @@ app.post('/articles', (request, response) => {
 });
 
 app.put('/articles/:id', function(request, response) {
-  // DONE: Write a SQL query to update an author record. Remember that our articles now have an author_id property, so we can reference it from the request.body.
-  // DONE: In the provided array, add the required values from the request as data for the SQL query to interpolate.
+  // TODO: Write a SQL query to update an author record. Remember that our articles now have an author_id property, so we can reference it from the request.body.
+  // TODO: In the provided array, add the required values from the request as data for the SQL query to interpolate.
   client.query(
-    `UPDATE authors
-    SET author=$1, "authorUrl"=$2
-    WHERE author_id=$3;`,
-    [request.body.author,
-      request.body.authorUrl,
-      request.body.id]
+    ``,
+    []
   )
     .then(() => {
-    // DONE: Write a SQL query to update an article record. Keep in mind that article records now have an author_id, in addition to title, category, publishedOn, and body.
-    // DONE: In the provided array, add the required values from the request as data for the SQL query to interpolate.
+    // TODO: Write a SQL query to update an article record. Keep in mind that article records now have an author_id, in addition to title, category, publishedOn, and body.
+    // TODO: In the provided array, add the required values from the request as data for the SQL query to interpolate.
       client.query(
-        `UPDATE articles SET body=$1, category=$2, "publishedOn"=$3, title=$4, author_id=$5 WHERE article_id=$6`,
-        [request.body.body,
-          request.body.category,
-          request.body.publishedOn,
-          request.body.title,
-          request.body.author_id,
-          request.params.id]
+        ``,
+        []
       )
     })
     .then(() => {
@@ -141,7 +124,7 @@ app.delete('/articles', (request, response) => {
     });
 });
 
-// REVIEWED: This calls the loadDB() function, defined below.
+// REVIEW: This calls the loadDB() function, defined below.
 loadDB();
 
 app.listen(PORT, () => {
@@ -152,7 +135,7 @@ app.listen(PORT, () => {
 //////// ** DATABASE LOADERS ** ////////
 ////////////////////////////////////////
 
-// REVIEWED: This helper function will load authors into the DB if the DB is empty.
+// REVIEW: This helper function will load authors into the DB if the DB is empty.
 function loadAuthors() {
   fs.readFile('./public/data/hackerIpsum.json', function(err, fd) {
     JSON.parse(fd.toString()).forEach(function(ele) {
@@ -164,7 +147,7 @@ function loadAuthors() {
   })
 }
 
-// REVIEWED: This helper function will load articles into the DB if the DB is empty.
+// REVIEW: This helper function will load articles into the DB if the DB is empty.
 function loadArticles() {
   client.query('SELECT COUNT(*) FROM articles')
     .then(result => {
@@ -186,7 +169,7 @@ function loadArticles() {
     })
 }
 
-// REVIEWED: Below are two queries, wrapped in the loadDB() function, which create separate tables in our DB, and create a relationship between the authors and articles tables.
+// REVIEW: Below are two queries, wrapped in the loadDB() function, which create separate tables in our DB, and create a relationship between the authors and articles tables.
 // THEN they load their respective data from our JSON file.
 function loadDB() {
   client.query(`
